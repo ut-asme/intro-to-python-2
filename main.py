@@ -148,6 +148,8 @@ class Game:
         self.font = pygame.font.Font(pygame.font.get_default_font(), 30)
         self.score = 0
 
+        self.start_offset = 0
+
         self.gameover = False
 
         # Menu
@@ -192,6 +194,8 @@ class Game:
                                     [self.all_sprites, self.collision_sprites],
                                 )
                             )
+
+                        self.start_offset = pygame.time.get_ticks()
 
             # Game logic
             self.window_surface.fill(pygame.Color(173, 216, 230))
@@ -238,8 +242,11 @@ class Game:
             self.gameover = True
 
     def display_score(self):
+        """
+        Displays the score on screen
+        """
         if not self.gameover:
-            self.score = pygame.time.get_ticks() // 1000
+            self.score = (pygame.time.get_ticks() - self.start_offset) // 1000
             y = self.size[1] // 32
         else:
             y = self.size[1] // 2
