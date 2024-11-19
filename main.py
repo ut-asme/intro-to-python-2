@@ -148,6 +148,17 @@ class Game:
         self.font = pygame.font.Font(pygame.font.get_default_font(), 30)
         self.score = 0
 
+        self.gameover = False
+
+        # Menu
+        self.menu_surface = pygame.surface.Surface(self.size)
+        pygame.draw.rect(
+            self.menu_surface,
+            "grey",
+            pygame.Rect(0, 0, self.size[0], self.size[1]),
+        )
+        self.menu_rect = self.menu_surface.get_rect(topleft=(0, 0))
+
     def run(self):
         """
         Performs all actions to make the game run
@@ -164,7 +175,23 @@ class Game:
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                     sys.exit()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    self.player.jump()
+                    if not self.gameover:
+                        self.player.jump()
+                    else:
+                        self.gameover = False
+
+                        # Remake the player
+                        self.player = Player(144, self.size[1] // 2, self.all_sprites)
+
+                        # Remake obstacles
+                        for i in range(4):
+                            self.obstacles.append(
+                                Obstacle(
+                                    self.size[0] // 2 + self.size[0] // 4 * i,
+                                    self.size[1],
+                                    [self.all_sprites, self.collision_sprites],
+                                )
+                            )
 
             # Game logic
             self.window_surface.fill(pygame.Color(173, 216, 230))
@@ -182,9 +209,12 @@ class Game:
                         [self.all_sprites, self.collision_sprites],
                     )
 
-            self.check_collisions()
-
             self.all_sprites.draw(self.window_surface)
+
+            if not self.gameover:
+                self.check_collisions()
+            else:
+                self.window_surface.blit(self.menu_surface)
 
             self.display_score()
 
@@ -198,15 +228,24 @@ class Game:
         if pygame.sprite.spritecollide(
             self.player, self.collision_sprites, False, pygame.sprite.collide_mask
         ) or self.player.is_offscreen(self.size[1]):
-            sys.exit()
+            # Remove obstacles
+            for obstacle in self.obstacles:
+                obstacle.kill()
+            self.obstacles = []
+            # Remove the current player
+            self.player.kill()
+
+            self.gameover = True
 
     def display_score(self):
-        self.score = pygame.time.get_ticks() // 1000
+        if not self.gameover:
+            self.score = pygame.time.get_ticks() // 1000
+            y = self.size[1] // 32
+        else:
+            y = self.size[1] // 2
 
         score_surface = self.font.render(str(self.score), True, "black")
-        score_rect = score_surface.get_rect(
-            midtop=(self.size[0] // 2, self.size[1] // 32)
-        )
+        score_rect = score_surface.get_rect(midtop=(self.size[0] // 2, y))
         self.window_surface.blit(score_surface, score_rect)
 
 
