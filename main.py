@@ -1,6 +1,7 @@
-from typing import override
-import pygame
+import random
 import sys
+
+import pygame
 
 
 class Player(pygame.sprite.Sprite):
@@ -30,11 +31,11 @@ class Player(pygame.sprite.Sprite):
         self.image = self.images[0]
         self.rect = self.image.get_rect(midleft=(x, y))
 
-        self.position = pygame.math.Vector2()
+        self.position = pygame.math.Vector2(self.rect.midleft)
 
-        self.gravity = 1.5
+        self.gravity = 4
         self.vertical_velocity = 0
-        self.jump_power = -0.5
+        self.jump_power = -1.2
 
     def update(self, dt):
         """
@@ -50,6 +51,44 @@ class Player(pygame.sprite.Sprite):
         Makes the player jump and should be called from the pygame event loop
         """
         self.vertical_velocity = self.jump_power
+
+
+class Obstacle(pygame.sprite.Sprite):
+    def __init__(self, x, screen_height, sprite_group):
+        """
+        Initializes an obstacle
+        """
+        super().__init__(sprite_group)
+
+        img = pygame.image.load("assets/hill.png")
+        img = pygame.transform.scale_by(img, 3)
+
+        vertical_offset = random.randint(0, screen_height // 6)
+        orientation = random.choice(["up", "down"])
+        if orientation == "up":
+            self.image = img
+            self.rect = self.image.get_rect(
+                bottomleft=(x, screen_height + vertical_offset)
+            )
+            self.position = pygame.math.Vector2(self.rect.bottomleft)
+        else:
+            self.image = pygame.transform.rotate(img, 180)
+            self.rect = self.image.get_rect(topleft=(x, -vertical_offset))
+            self.position = pygame.math.Vector2(self.rect.topleft)
+
+    def update(self, dt, speed, screen_width):
+        """
+        Handles updates to the obstacle objects
+        """
+        # Moves them left
+        self.position.x -= speed * dt
+        self.rect.x = round(self.position.x)
+
+    def is_offscreen(self):
+        """
+        Returns True if obstacle is offscreen
+        """
+        return self.rect.x + 144 <= 0
 
 
 class Game:
@@ -82,7 +121,19 @@ class Game:
         self.all_sprites = pygame.sprite.Group()
 
         # Make player
-        self.player = Player(72, self.size[1] // 2, self.all_sprites)
+        self.player = Player(144, self.size[1] // 2, self.all_sprites)
+
+        # Make obstacles
+        self.obstacle_speed = 400
+        self.obstacles = []
+        for i in range(4):
+            self.obstacles.append(
+                Obstacle(
+                    self.size[0] // 2 + self.size[0] // 4 * i,
+                    self.size[1],
+                    self.all_sprites,
+                )
+            )
 
     def run(self):
         """
@@ -106,6 +157,15 @@ class Game:
             self.window_surface.fill(pygame.Color(173, 216, 230))
 
             self.player.update(dt)
+
+            for i, obstacle in enumerate(self.obstacles):
+                obstacle.update(dt, self.obstacle_speed, self.size[0])
+                if obstacle.is_offscreen():
+                    # Replace with a new obstacle object
+                    obstacle.kill()
+                    self.obstacles[i] = Obstacle(
+                        self.size[0], self.size[1], self.all_sprites
+                    )
 
             self.all_sprites.draw(self.window_surface)
 
