@@ -144,6 +144,10 @@ class Game:
                 )
             )
 
+        # Text
+        self.font = pygame.font.Font(pygame.font.get_default_font(), 30)
+        self.score = 0
+
     def run(self):
         """
         Performs all actions to make the game run
@@ -182,6 +186,8 @@ class Game:
 
             self.all_sprites.draw(self.window_surface)
 
+            self.display_score()
+
             pygame.display.flip()
 
     def check_collisions(self):
@@ -193,6 +199,15 @@ class Game:
             self.player, self.collision_sprites, False, pygame.sprite.collide_mask
         ) or self.player.is_offscreen(self.size[1]):
             sys.exit()
+
+    def display_score(self):
+        self.score = pygame.time.get_ticks() // 1000
+
+        score_surface = self.font.render(str(self.score), True, "black")
+        score_rect = score_surface.get_rect(
+            midtop=(self.size[0] // 2, self.size[1] // 32)
+        )
+        self.window_surface.blit(score_surface, score_rect)
 
 
 # Main function
