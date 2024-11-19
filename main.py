@@ -48,6 +48,8 @@ class Game:
             # Game logic
             self.window_surface.fill(pygame.Color(173, 216, 230))
 
+            self.all_sprites.draw(self.window_surface)
+
             pygame.display.flip()
 
             self.clock.tick(self.framerate)
