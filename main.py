@@ -180,6 +180,9 @@ class Game:
             pygame.display.flip()
 
     def check_collisions(self):
+        """
+        Handles collisions between the player and world
+        """
         if self.player.is_offscreen(self.size[1]):
             sys.exit()
 
