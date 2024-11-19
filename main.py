@@ -52,6 +52,12 @@ class Player(pygame.sprite.Sprite):
         """
         self.vertical_velocity = self.jump_power
 
+    def is_offscreen(self, screen_height):
+        """
+        If the player is offscreen
+        """
+        return self.position.y > screen_height + 36 or self.position.y < -36
+
 
 class Obstacle(pygame.sprite.Sprite):
     def __init__(self, x, screen_height, sprite_group):
@@ -167,9 +173,19 @@ class Game:
                         self.size[0], self.size[1], self.all_sprites
                     )
 
+            self.check_collisions()
+
             self.all_sprites.draw(self.window_surface)
 
             pygame.display.flip()
+
+    def check_collisions(self):
+        if self.player.is_offscreen(self.size[1]):
+            sys.exit()
+
+        for obstacle in self.obstacles:
+            if pygame.sprite.collide_mask(self.player, obstacle):
+                sys.exit()
 
 
 # Main function
