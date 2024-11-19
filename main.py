@@ -3,6 +3,47 @@ import pygame
 import sys
 
 
+class Player(pygame.sprite.Sprite):
+    """A class representing our player"""
+
+    def __init__(self, x, y, sprite_group):
+        """
+        Method to initialize our Player
+
+        Takes an x and y value for the player position
+        """
+
+        # Make sure the sprite stuff is initialized and we
+        # add the player to the game's sprite group
+        super().__init__(sprite_group)
+
+        img1 = pygame.image.load("assets/player1.png")
+        img1 = pygame.transform.flip(img1, True, False)
+
+        img2 = pygame.image.load("assets/player2.png")
+        img2 = pygame.transform.flip(img2, True, False)
+
+        self.images = [img1, img2]
+
+        self.image = self.images[0]
+        self.rect = self.image.get_rect(midleft=(x, y))
+
+        self.position = pygame.math.Vector2()
+
+        self.gravity = 1.5
+        self.vertical_velocity = 0
+        self.jump_power = -0.5
+
+    def update(self, dt):
+        # Gravity
+        self.vertical_velocity += self.gravity * dt
+        self.position.y += self.vertical_velocity
+        self.rect.y = round(self.position.y)
+
+    def jump(self):
+        self.vertical_velocity = self.jump_power
+
+
 class Game:
     """A class representing our Game"""
 
@@ -28,6 +69,9 @@ class Game:
         # Sprite group
         self.all_sprites = pygame.sprite.Group()
 
+        # Make player
+        self.player = Player(72, self.size[1] // 2, self.all_sprites)
+
     def run(self):
         """
         What will happen each frame of the program running
@@ -43,9 +87,15 @@ class Game:
                     sys.exit()
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                     sys.exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    self.player.jump()
 
             # Game logic
             self.window_surface.fill(pygame.Color(173, 216, 230))
+
+            self.player.update(dt)
+
+            self.all_sprites.draw(self.window_surface)
 
             pygame.display.flip()
 
