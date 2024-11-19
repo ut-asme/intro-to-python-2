@@ -1,3 +1,4 @@
+from typing import override
 import pygame
 import sys
 
@@ -32,11 +33,9 @@ class Game:
         What will happen each frame of the program running
         """
 
-        last_time = self.clock.get_time()
         while True:
             # Delta time
-            dt = self.clock.get_time() - last_time
-            last_time = self.clock.get_time()
+            dt = self.clock.tick() / 1000
 
             # Event loop
             for event in pygame.event.get():
@@ -48,11 +47,7 @@ class Game:
             # Game logic
             self.window_surface.fill(pygame.Color(173, 216, 230))
 
-            self.all_sprites.draw(self.window_surface)
-
             pygame.display.flip()
-
-            self.clock.tick(self.framerate)
 
 
 # Main function
