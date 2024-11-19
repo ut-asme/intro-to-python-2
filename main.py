@@ -4,7 +4,9 @@ import sys
 
 
 class Player(pygame.sprite.Sprite):
-    """A class representing our player"""
+    """
+    A class representing our player
+    """
 
     def __init__(self, x, y, sprite_group):
         """
@@ -35,20 +37,30 @@ class Player(pygame.sprite.Sprite):
         self.jump_power = -0.5
 
     def update(self, dt):
+        """
+        Handles updates to the player object
+        """
         # Gravity
         self.vertical_velocity += self.gravity * dt
         self.position.y += self.vertical_velocity
         self.rect.y = round(self.position.y)
 
     def jump(self):
+        """
+        Makes the player jump and should be called from the pygame event loop
+        """
         self.vertical_velocity = self.jump_power
 
 
 class Game:
-    """A class representing our Game"""
+    """
+    A class representing our Game
+    """
 
     def __init__(self):
-        """Initializes our game"""
+        """
+        Initializes our game
+        """
 
         # Initialize pygame stuff
         pygame.init()
@@ -74,7 +86,7 @@ class Game:
 
     def run(self):
         """
-        What will happen each frame of the program running
+        Performs all actions to make the game run
         """
 
         while True:
