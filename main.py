@@ -126,6 +126,9 @@ class Game:
         # Sprite group
         self.all_sprites = pygame.sprite.Group()
 
+        # Collision sprites
+        self.collision_sprites = pygame.sprite.Group()
+
         # Make player
         self.player = Player(144, self.size[1] // 2, self.all_sprites)
 
@@ -137,7 +140,7 @@ class Game:
                 Obstacle(
                     self.size[0] // 2 + self.size[0] // 4 * i,
                     self.size[1],
-                    self.all_sprites,
+                    [self.all_sprites, self.collision_sprites],
                 )
             )
 
@@ -170,7 +173,9 @@ class Game:
                     # Replace with a new obstacle object
                     obstacle.kill()
                     self.obstacles[i] = Obstacle(
-                        self.size[0], self.size[1], self.all_sprites
+                        self.size[0],
+                        self.size[1],
+                        [self.all_sprites, self.collision_sprites],
                     )
 
             self.check_collisions()
@@ -183,12 +188,11 @@ class Game:
         """
         Handles collisions between the player and world
         """
-        if self.player.is_offscreen(self.size[1]):
-            sys.exit()
 
-        for obstacle in self.obstacles:
-            if pygame.sprite.collide_mask(self.player, obstacle):
-                sys.exit()
+        if pygame.sprite.spritecollide(
+            self.player, self.collision_sprites, False, pygame.sprite.collide_mask
+        ) or self.player.is_offscreen(self.size[1]):
+            sys.exit()
 
 
 # Main function
